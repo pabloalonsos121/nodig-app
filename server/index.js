@@ -4,7 +4,7 @@ import bcrypt from 'bcryptjs';
 import path from 'node:path';
 import { fileURLToPath } from 'node:url';
 
-import db from './db.js';
+import db, { transaction } from './db.js';
 import {
   issueSession,
   clearSession,
@@ -299,7 +299,9 @@ app.delete('/api/needs/:id', requireOrg, (req, res) => {
 
 // ================= Donor: claim / release =================
 app.post('/api/needs/:id/claim', requireDonor, (req, res) => {
-  const claim = db.transaction((needId, donorId) => {
+  const needId = req.params.id;
+  const donorId = req.user.id;
+  const claim = transaction(() => {
     const need = db
       .prepare(
         `SELECT n.*, o.approved AS org_approved FROM needs n
@@ -313,11 +315,11 @@ app.post('/api/needs/:id/claim', requireDonor, (req, res) => {
     }
     db.prepare('UPDATE needs SET claimed_by = ? WHERE id = ?').run(donorId, needId);
     return { status: 200 };
-  })(req.params.id, req.user.id);
+  });
 
   if (claim.status !== 200) return res.status(claim.status).json(claim.body);
-  const row = db.prepare(`${NEED_SELECT} WHERE n.id = ?`).get(req.params.id);
-  res.json({ need: serializeNeed(row, req.user.id) });
+  const row = db.prepare(`${NEED_SELECT} WHERE n.id = ?`).get(needId);
+  res.json({ need: serializeNeed(row, donorId) });
 });
 
 app.post('/api/needs/:id/release', requireDonor, (req, res) => {

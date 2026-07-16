@@ -13,14 +13,20 @@ the same data from any device.
 ## Stack
 
 - **Backend:** Node.js + Express
-- **Database:** SQLite (via `better-sqlite3`) — a single file under `data/`
+- **Database:** SQLite via Node's built-in [`node:sqlite`](https://nodejs.org/api/sqlite.html) — a single file under `data/`, **no native compilation, no build tools**
 - **Auth:** bcrypt password hashing + signed JWT session cookies (httpOnly)
 - **Frontend:** the prototype's HTML/CSS with vanilla JS calling the API
 - **Realtime chat:** short polling (every 4s) — the fallback the handoff allows
 
-No external accounts or cloud services are required to run it.
+Every dependency is pure JavaScript, so `npm install` works on a fresh machine
+(including Windows) with no compiler or toolchain. No external accounts or cloud
+services are required to run it.
 
 ## Run locally
+
+**Requires Node.js 22.5+ (Node 24 recommended)** — that's where the built-in
+`node:sqlite` module is available. Node prints a one-line "SQLite is an
+experimental feature" warning on startup; it's harmless.
 
 ```bash
 npm install

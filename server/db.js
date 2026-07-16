@@ -1,4 +1,4 @@
-import Database from 'better-sqlite3';
+import { DatabaseSync } from 'node:sqlite';
 import bcrypt from 'bcryptjs';
 import fs from 'node:fs';
 import path from 'node:path';
@@ -9,9 +9,24 @@ const dataDir = path.join(__dirname, '..', 'data');
 fs.mkdirSync(dataDir, { recursive: true });
 
 const dbPath = process.env.DATABASE_PATH || path.join(dataDir, 'nodig.db');
-const db = new Database(dbPath);
-db.pragma('journal_mode = WAL');
-db.pragma('foreign_keys = ON');
+const db = new DatabaseSync(dbPath);
+db.exec('PRAGMA journal_mode = WAL;');
+db.exec('PRAGMA foreign_keys = ON;');
+
+// node:sqlite has no db.transaction() helper (unlike better-sqlite3), so wrap
+// BEGIN/COMMIT/ROLLBACK ourselves. `fn` runs synchronously; returning commits,
+// throwing rolls back. Single-process + synchronous, so no nesting to worry about.
+export function transaction(fn) {
+  db.exec('BEGIN');
+  try {
+    const result = fn();
+    db.exec('COMMIT');
+    return result;
+  } catch (err) {
+    db.exec('ROLLBACK');
+    throw err;
+  }
+}
 
 // ================= Schema =================
 db.exec(`
@@ -78,7 +93,7 @@ if (orgCount === 0) {
     { name: 'Leuven Community Kitchen', city: 'Leuven', email: 'contact@leuvenkitchen.be', initials: 'LK' },
   ];
   const orgIds = [];
-  const seedTx = db.transaction(() => {
+  transaction(() => {
     for (const o of seedOrgs) {
       const info = insertOrg.run({ ...o, password_hash: demoHash });
       orgIds.push(info.lastInsertRowid);
@@ -105,7 +120,6 @@ if (orgCount === 0) {
       });
     }
   });
-  seedTx();
   console.log('Seeded database with demo organizations and needs (login: any seed email / demo123).');
 }
 
