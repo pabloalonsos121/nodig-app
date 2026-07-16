@@ -1,0 +1,193 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nodig — Admin</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2333553F'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' font-weight='600' fill='white' text-anchor='middle'%3EN%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --ink: #1C2321; --ink-soft: #4A524F; --paper: #F6F5F1; --card: #FFFFFF;
+    --line: #DEDBD2; --moss: #33553F; --moss-light: #E7EEE8;
+    --rust: #B4552F; --gold-light: #F6EDD9; --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--paper); color: var(--ink); line-height: 1.5; }
+  h1, h2 { font-family: Georgia, serif; font-weight: 600; margin: 0; }
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; border-bottom: 1px solid var(--line); }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: Georgia, serif; font-weight: 600; font-size: 20px; }
+  .brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--moss); display: flex; align-items: center; justify-content: center; color: white; font-size: 15px; }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 40px 32px 80px; }
+  .center-card { max-width: 380px; margin: 40px auto; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 32px; }
+  .center-card h2 { font-size: 22px; margin-bottom: 4px; }
+  .center-card p.sub { color: var(--ink-soft); font-size: 14px; margin-bottom: 22px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  input { width: 100%; font-family: inherit; font-size: 14px; padding: 10px 14px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); color: var(--ink); }
+  input:focus { outline: 2px solid var(--moss); outline-offset: 1px; }
+  .field-error { font-size: 12.5px; color: var(--rust); margin-top: 8px; display: none; }
+  .btn { font-family: inherit; font-size: 14px; font-weight: 500; padding: 10px 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .btn:hover { border-color: var(--ink-soft); }
+  .btn-primary { background: var(--moss); color: white; border-color: var(--moss); }
+  .btn-primary:hover { background: #274531; }
+  .btn-full { width: 100%; }
+  .btn-sm { padding: 6px 12px; font-size: 13px; }
+  .head-row { display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px; flex-wrap: wrap; gap: 12px; }
+  .sub-line { color: var(--ink-soft); font-size: 14px; margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); overflow: hidden; }
+  th, td { text-align: left; padding: 12px 14px; font-size: 13.5px; border-bottom: 1px solid var(--line); vertical-align: middle; }
+  th { font-size: 12px; text-transform: uppercase; letter-spacing: 0.04em; color: var(--ink-soft); background: var(--paper); }
+  tr:last-child td { border-bottom: none; }
+  .pill { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .pill.yes { background: var(--moss-light); color: var(--moss); }
+  .pill.no { background: var(--gold-light); color: #8A6A20; }
+  .muted { color: var(--ink-soft); }
+  .empty { text-align: center; color: var(--ink-soft); padding: 40px; }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ink); color: white; padding: 12px 22px; border-radius: 999px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 200; }
+  .toast.show { opacity: 1; }
+  a.back { color: var(--moss); text-decoration: none; font-size: 13.5px; font-weight: 600; }
+  .table-scroll { overflow-x: auto; }
+</style>
+</head>
+<body>
+<div class="topbar">
+  <div class="brand"><div class="brand-mark">N</div>Nodig — Admin</div>
+  <a class="back" href="/">← Back to site</a>
+</div>
+
+<!-- LOGIN -->
+<div id="loginView">
+  <div class="center-card">
+    <h2>Admin sign in</h2>
+    <p class="sub">Approve organizations so their needs go live.</p>
+    <div class="field">
+      <label for="adminPassword">Admin password</label>
+      <input type="password" id="adminPassword" placeholder="Enter admin password">
+      <div class="field-error" id="loginError">Incorrect admin password.</div>
+    </div>
+    <button class="btn btn-primary btn-full" onclick="adminLogin()">Sign in</button>
+  </div>
+</div>
+
+<!-- TABLE -->
+<div id="adminView" class="wrap" style="display:none;">
+  <div class="head-row">
+    <h1 style="font-size:24px;">Organizations</h1>
+    <button class="btn btn-sm" onclick="adminLogout()">Sign out</button>
+  </div>
+  <p class="sub-line">Approve an organization to make its needs visible on the public browse. Unapprove to hide them again.</p>
+  <div class="table-scroll">
+    <table>
+      <thead>
+        <tr><th>Organization</th><th>City</th><th>Email</th><th>Needs</th><th>Status</th><th>Action</th></tr>
+      </thead>
+      <tbody id="orgRows"></tbody>
+    </table>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+
+<script>
+async function api(path, { method = 'GET', body } = {}) {
+  const res = await fetch(path, {
+    method, credentials: 'same-origin',
+    headers: body ? { 'Content-Type': 'application/json' } : undefined,
+    body: body ? JSON.stringify(body) : undefined,
+  });
+  let data = null;
+  try { data = await res.json(); } catch {}
+  if (!res.ok) { const e = new Error((data && data.error) || 'Error'); e.status = res.status; throw e; }
+  return data;
+}
+function toast(msg) {
+  const t = document.getElementById('toast');
+  t.textContent = msg; t.classList.add('show');
+  setTimeout(() => t.classList.remove('show'), 2000);
+}
+function escapeHtml(s) { const d = document.createElement('div'); d.textContent = s == null ? '' : String(s); return d.innerHTML; }
+
+function showAdmin() {
+  document.getElementById('loginView').style.display = 'none';
+  document.getElementById('adminView').style.display = 'block';
+  loadOrgs();
+}
+function showLogin() {
+  document.getElementById('adminView').style.display = 'none';
+  document.getElementById('loginView').style.display = 'block';
+}
+
+async function adminLogin() {
+  const password = document.getElementById('adminPassword').value;
+  const errEl = document.getElementById('loginError');
+  try {
+    await api('/api/admin/login', { method: 'POST', body: { password } });
+    errEl.style.display = 'none';
+    document.getElementById('adminPassword').value = '';
+    showAdmin();
+  } catch (e) {
+    errEl.textContent = e.message;
+    errEl.style.display = 'block';
+  }
+}
+async function adminLogout() {
+  try { await api('/api/admin/logout', { method: 'POST' }); } catch {}
+  showLogin();
+}
+
+async function loadOrgs() {
+  const tbody = document.getElementById('orgRows');
+  let orgs;
+  try {
+    orgs = (await api('/api/admin/orgs')).orgs;
+  } catch (e) {
+    if (e.status === 401) { showLogin(); return; }
+    tbody.innerHTML = `<tr><td colspan="6" class="empty">${escapeHtml(e.message)}</td></tr>`;
+    return;
+  }
+  if (orgs.length === 0) {
+    tbody.innerHTML = '<tr><td colspan="6" class="empty">No organizations yet.</td></tr>';
+    return;
+  }
+  tbody.innerHTML = '';
+  orgs.forEach(o => {
+    const tr = document.createElement('tr');
+    tr.innerHTML = `
+      <td><b>${escapeHtml(o.name)}</b></td>
+      <td class="muted">${escapeHtml(o.city)}</td>
+      <td class="muted">${escapeHtml(o.email)}</td>
+      <td class="muted">${o.needCount}</td>
+      <td><span class="pill ${o.approved ? 'yes' : 'no'}">${o.approved ? 'Approved' : 'Pending'}</span></td>
+      <td>
+        <button class="btn btn-sm ${o.approved ? '' : 'btn-primary'}" onclick="setApproval(${o.id}, ${o.approved ? 'false' : 'true'})">
+          ${o.approved ? 'Unapprove' : 'Approve'}
+        </button>
+      </td>
+    `;
+    tbody.appendChild(tr);
+  });
+}
+
+async function setApproval(id, approved) {
+  try {
+    await api('/api/admin/orgs/' + id + '/approval', { method: 'POST', body: { approved } });
+    toast(approved ? 'Organization approved' : 'Approval removed');
+    loadOrgs();
+  } catch (e) {
+    if (e.status === 401) { showLogin(); return; }
+    toast(e.message);
+  }
+}
+
+document.getElementById('adminPassword').addEventListener('keydown', e => {
+  if (e.key === 'Enter') adminLogin();
+});
+
+// Try to resume an existing admin session.
+(async function () {
+  try { await api('/api/admin/orgs'); showAdmin(); }
+  catch { showLogin(); }
+})();
+</script>
+</body>
+</html>

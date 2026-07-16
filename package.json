@@ -1,0 +1,21 @@
+{
+  "name": "nodig-app",
+  "version": "1.0.0",
+  "description": "Nodig — connects Belgian organizations posting real needs with donors who want to help.",
+  "type": "module",
+  "engines": {
+    "node": ">=18"
+  },
+  "scripts": {
+    "start": "node server/index.js",
+    "dev": "node --watch server/index.js",
+    "approve": "node scripts/approve.js"
+  },
+  "dependencies": {
+    "bcryptjs": "^2.4.3",
+    "better-sqlite3": "^11.8.1",
+    "cookie-parser": "^1.4.7",
+    "express": "^4.21.2",
+    "jsonwebtoken": "^9.0.2"
+  }
+}

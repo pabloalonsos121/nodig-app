@@ -1,0 +1,331 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Nodig — Belgium</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect width='32' height='32' rx='8' fill='%2333553F'/%3E%3Ctext x='16' y='23' font-family='Georgia,serif' font-size='19' font-weight='600' fill='white' text-anchor='middle'%3EN%3C/text%3E%3C/svg%3E">
+<style>
+  :root {
+    --ink: #1C2321; --ink-soft: #4A524F; --paper: #F6F5F1; --card: #FFFFFF;
+    --line: #DEDBD2; --moss: #33553F; --moss-light: #E7EEE8;
+    --rust: #B4552F; --rust-light: #F5E4DA; --gold: #C89B3C; --gold-light: #F6EDD9;
+    --radius: 10px;
+  }
+  * { box-sizing: border-box; }
+  body { margin: 0; font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; background: var(--paper); color: var(--ink); line-height: 1.5; }
+  h1, h2, h3 { font-family: Georgia, serif; font-weight: 600; margin: 0; }
+
+  .topbar { display: flex; align-items: center; justify-content: space-between; padding: 14px 32px; border-bottom: 1px solid var(--line); background: var(--paper); position: sticky; top: 0; z-index: 20; }
+  .brand { display: flex; align-items: center; gap: 10px; font-family: Georgia, serif; font-weight: 600; font-size: 20px; cursor: pointer; }
+  .brand-mark { width: 30px; height: 30px; border-radius: 8px; background: var(--moss); display: flex; align-items: center; justify-content: center; color: white; font-size: 15px; }
+  .top-actions { display: flex; align-items: center; gap: 10px; }
+  .user-chip { display: flex; align-items: center; gap: 8px; font-size: 14px; background: var(--card); border: 1px solid var(--line); border-radius: 999px; padding: 5px 14px 5px 5px; cursor: pointer; }
+  .user-chip .dot { width: 26px; height: 26px; border-radius: 50%; background: var(--moss-light); color: var(--moss); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 700; }
+
+  .view { display: none; max-width: 1040px; margin: 0 auto; padding: 40px 32px 80px; }
+  .view.active { display: block; }
+
+  .hero { padding: 8px 0 32px; border-bottom: 1px solid var(--line); margin-bottom: 28px; }
+  .eyebrow { font-size: 13px; color: var(--moss); font-weight: 600; letter-spacing: 0.04em; text-transform: uppercase; margin-bottom: 10px; }
+  .hero h1 { font-size: 32px; line-height: 1.15; max-width: 560px; }
+  .hero p { color: var(--ink-soft); font-size: 15.5px; max-width: 480px; margin-top: 10px; }
+
+  .filter-row { display: flex; gap: 10px; margin-bottom: 22px; flex-wrap: wrap; }
+  select, input[type=text], input[type=email], input[type=password] {
+    font-family: inherit; font-size: 14px; padding: 10px 14px; border-radius: var(--radius);
+    border: 1px solid var(--line); background: var(--card); color: var(--ink);
+  }
+  select:focus, input:focus, textarea:focus { outline: 2px solid var(--moss); outline-offset: 1px; }
+
+  .needs-grid { display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 14px; }
+  .need-card { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 18px 20px; display: flex; flex-direction: column; gap: 10px; }
+  .need-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 8px; }
+  .org-tag { font-size: 12.5px; color: var(--ink-soft); display: flex; align-items: center; gap: 6px; }
+  .badge { font-size: 11.5px; font-weight: 700; padding: 3px 10px; border-radius: 999px; white-space: nowrap; }
+  .badge.critical { background: var(--rust-light); color: var(--rust); }
+  .badge.high { background: var(--gold-light); color: #8A6A20; }
+  .badge.ok { background: var(--moss-light); color: var(--moss); }
+  .badge.claimed { background: #E7E5E1; color: var(--ink-soft); }
+  .need-title { font-size: 16px; font-weight: 700; font-family: Georgia, serif; }
+  .need-desc { font-size: 13.5px; color: var(--ink-soft); }
+  .need-foot { display: flex; justify-content: space-between; align-items: center; font-size: 12.5px; color: var(--ink-soft); margin-top: 4px; padding-top: 10px; border-top: 1px solid var(--line); }
+
+  .btn { font-family: inherit; font-size: 14px; font-weight: 500; padding: 10px 18px; border-radius: var(--radius); border: 1px solid var(--line); background: var(--card); color: var(--ink); cursor: pointer; }
+  .btn:hover { border-color: var(--ink-soft); }
+  .btn-primary { background: var(--moss); color: white; border-color: var(--moss); }
+  .btn-primary:hover { background: #274531; }
+  .btn-primary:disabled { background: #A9B7AD; border-color: #A9B7AD; cursor: not-allowed; }
+  .btn-danger { color: var(--rust); }
+  .btn-sm { padding: 6px 12px; font-size: 13px; }
+  .btn-full { width: 100%; }
+
+  .center-card { max-width: 400px; margin: 40px auto; background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 32px; }
+  .center-card h2 { font-size: 22px; margin-bottom: 4px; }
+  .center-card p.sub { color: var(--ink-soft); font-size: 14px; margin-bottom: 22px; }
+  .field { margin-bottom: 14px; }
+  .field label { display: block; font-size: 13px; font-weight: 600; margin-bottom: 6px; }
+  .field input, .field select, .field textarea { width: 100%; }
+  .field textarea { font-family: inherit; font-size: 14px; padding: 10px 14px; border-radius: var(--radius); border: 1px solid var(--line); resize: vertical; min-height: 70px; }
+  .field-error { font-size: 12.5px; color: var(--rust); margin-top: 4px; display: none; }
+  .demo-note { font-size: 12.5px; color: var(--ink-soft); background: var(--gold-light); border-radius: var(--radius); padding: 10px 14px; margin-top: 16px; }
+  .role-toggle { display: flex; gap: 6px; background: var(--paper); border: 1px solid var(--line); border-radius: 999px; padding: 4px; margin-bottom: 22px; }
+  .role-toggle button { flex: 1; border: none; background: transparent; padding: 8px; border-radius: 999px; font-size: 13.5px; font-weight: 600; cursor: pointer; color: var(--ink-soft); }
+  .role-toggle button.active { background: var(--moss); color: white; }
+  .switch-link { text-align: center; font-size: 13.5px; color: var(--ink-soft); margin-top: 16px; }
+  .switch-link a { color: var(--moss); cursor: pointer; font-weight: 600; text-decoration: none; }
+
+  .dash-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: 24px; flex-wrap: wrap; gap: 12px; }
+  .dash-org { display: flex; align-items: center; gap: 12px; }
+  .avatar { width: 42px; height: 42px; border-radius: 50%; background: var(--moss-light); color: var(--moss); display: flex; align-items: center; justify-content: center; font-weight: 700; font-family: Georgia, serif; }
+  .verified { font-size: 12px; color: var(--moss); display: flex; align-items: center; gap: 4px; }
+
+  .pending-banner { display: none; background: var(--gold-light); border: 1px solid #E6D6A8; color: #6E5518; border-radius: var(--radius); padding: 14px 18px; margin-bottom: 20px; font-size: 13.5px; }
+  .pending-banner b { color: #5A4413; }
+
+  .my-needs-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  .my-need-row { display: flex; justify-content: space-between; align-items: center; background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; flex-wrap: wrap; gap: 10px; }
+  .my-need-row .info { display: flex; flex-direction: column; gap: 3px; }
+  .my-need-row .info b { font-size: 14.5px; }
+  .my-need-row .actions { display: flex; gap: 8px; }
+
+  .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(28,35,33,0.4); align-items: center; justify-content: center; z-index: 100; padding: 20px; }
+  .modal-overlay.open { display: flex; }
+  .modal { background: var(--card); border-radius: 14px; padding: 28px; width: 100%; max-width: 420px; }
+  .modal h3 { font-size: 19px; margin-bottom: 18px; }
+  .modal-actions { display: flex; gap: 10px; margin-top: 20px; }
+
+  .empty-state { text-align: center; padding: 60px 20px; color: var(--ink-soft); }
+  .empty-state h3 { color: var(--ink); margin-bottom: 8px; font-size: 18px; }
+
+  .claims-list { display: flex; flex-direction: column; gap: 10px; margin-top: 20px; }
+  .claim-row { background: var(--card); border: 1px solid var(--line); border-radius: var(--radius); padding: 14px 18px; display: flex; justify-content: space-between; align-items: center; flex-wrap: wrap; gap: 10px; }
+
+  .back-link { font-size: 13.5px; color: var(--ink-soft); cursor: pointer; display: inline-flex; align-items: center; gap: 6px; margin-bottom: 20px; }
+  .detail-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 26px 28px; margin-bottom: 20px; }
+  .detail-top { display: flex; justify-content: space-between; align-items: flex-start; gap: 12px; margin-bottom: 6px; }
+  .detail-title { font-size: 22px; font-family: Georgia, serif; font-weight: 700; margin-bottom: 4px; }
+  .detail-org { font-size: 14px; color: var(--ink-soft); margin-bottom: 14px; }
+  .detail-desc { font-size: 15px; color: var(--ink); margin-bottom: 16px; }
+  .detail-meta { display: flex; gap: 18px; font-size: 13px; color: var(--ink-soft); flex-wrap: wrap; }
+  .detail-actions { margin-top: 18px; }
+
+  .chat-card { background: var(--card); border: 1px solid var(--line); border-radius: 14px; padding: 22px 24px; }
+  .chat-card h3 { font-size: 15.5px; margin-bottom: 4px; }
+  .chat-sub { font-size: 12.5px; color: var(--ink-soft); margin-bottom: 16px; }
+  .chat-thread { display: flex; flex-direction: column; gap: 10px; max-height: 340px; overflow-y: auto; padding-right: 4px; margin-bottom: 14px; }
+  .chat-msg { max-width: 78%; padding: 9px 14px; border-radius: 14px; font-size: 14px; line-height: 1.4; }
+  .chat-msg.from-donor { align-self: flex-end; background: var(--moss); color: white; border-bottom-right-radius: 4px; }
+  .chat-msg.from-org { align-self: flex-start; background: var(--paper); border: 1px solid var(--line); border-bottom-left-radius: 4px; }
+  .chat-msg .meta { font-size: 10.5px; opacity: 0.7; margin-top: 3px; }
+  .chat-empty { text-align: center; font-size: 13.5px; color: var(--ink-soft); padding: 24px 0; }
+  .chat-input-row { display: flex; gap: 8px; }
+  .chat-input-row input { flex: 1; }
+  .chat-locked { text-align: center; font-size: 13.5px; color: var(--ink-soft); background: var(--paper); border-radius: var(--radius); padding: 14px; }
+  .chat-locked a { color: var(--moss); font-weight: 600; cursor: pointer; }
+  .need-card { cursor: pointer; }
+
+  footer { text-align: center; font-size: 12.5px; color: var(--ink-soft); padding: 24px; border-top: 1px solid var(--line); }
+  footer a { color: var(--ink-soft); }
+  .toast { position: fixed; bottom: 24px; left: 50%; transform: translateX(-50%); background: var(--ink); color: white; padding: 12px 22px; border-radius: 999px; font-size: 14px; opacity: 0; pointer-events: none; transition: opacity 0.2s; z-index: 200; }
+  .toast.show { opacity: 1; }
+
+  @media (max-width: 600px) {
+    .topbar { padding: 12px 18px; }
+    .view { padding: 24px 18px 60px; }
+    .hero h1 { font-size: 24px; }
+  }
+</style>
+</head>
+<body>
+
+<div class="topbar">
+  <div class="brand" onclick="goHome()"><div class="brand-mark">N</div>Nodig</div>
+  <div class="top-actions" id="topActions"></div>
+</div>
+
+<!-- BROWSE (public) -->
+<div class="view active" id="view-browse">
+  <div class="hero">
+    <div class="eyebrow">Belgium · Pilot</div>
+    <h1>See what's actually needed, right now.</h1>
+    <p>Verified organizations — shelters, food banks, schools running fundraisers — post their real, current needs. No guessing, no waste.</p>
+  </div>
+  <div class="filter-row">
+    <select id="cityFilter"><option value="all">All cities</option></select>
+    <select id="catFilter">
+      <option value="all">All types</option>
+      <option value="item">Items needed</option>
+      <option value="volunteer">Volunteering</option>
+    </select>
+    <select id="urgencyFilter">
+      <option value="all">Any urgency</option>
+      <option value="Critical">Critical</option>
+      <option value="High">High</option>
+      <option value="Adequate">Adequate</option>
+    </select>
+  </div>
+  <div class="needs-grid" id="needsGrid"></div>
+</div>
+
+<div class="view" id="view-detail">
+  <div class="back-link" onclick="showView('browse')">&larr; Back to all needs</div>
+  <div class="detail-card">
+    <div class="detail-top">
+      <div>
+        <div class="detail-title" id="detailTitle">—</div>
+        <div class="detail-org" id="detailOrg">—</div>
+      </div>
+      <span class="badge" id="detailBadge">—</span>
+    </div>
+    <div class="detail-desc" id="detailDesc">—</div>
+    <div class="detail-meta">
+      <span id="detailCity">📍 —</span>
+      <span id="detailType">—</span>
+    </div>
+    <div class="detail-actions" id="detailActions"></div>
+  </div>
+
+  <div class="chat-card">
+    <h3>Questions about this need</h3>
+    <p class="chat-sub">Message the organization directly — ask about drop-off times, sizes, or anything else.</p>
+    <div class="chat-thread" id="chatThread"></div>
+    <div id="chatInputArea"></div>
+  </div>
+</div>
+
+<!-- AUTH -->
+<div class="view" id="view-auth">
+  <div class="center-card">
+    <div class="role-toggle">
+      <button id="roleOrgBtn" class="active" onclick="setAuthRole('org')">Organization</button>
+      <button id="roleDonorBtn" onclick="setAuthRole('donor')">Donor</button>
+    </div>
+
+    <div id="authModeSignin">
+      <h2 id="authTitle">Organization sign in</h2>
+      <p class="sub" id="authSub">Manage the needs you've posted.</p>
+      <div class="field">
+        <label for="authEmail">Email</label>
+        <input type="email" id="authEmail" placeholder="you@organization.be">
+      </div>
+      <div class="field">
+        <label for="authPassword">Password</label>
+        <input type="password" id="authPassword" placeholder="Enter your password">
+        <div class="field-error" id="authError">That email and password don't match an account.</div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="handleSignin()">Sign in</button>
+      <div class="switch-link">No account yet? <a onclick="setAuthMode('signup')">Create one</a></div>
+      <div class="demo-note">Demo login: any seed organization email (e.g. <b>contact@foyerstjean.be</b>) with password <b>demo123</b>. New organizations are manually approved before their needs go live.</div>
+    </div>
+
+    <div id="authModeSignup" style="display:none;">
+      <h2 id="signupTitle">Create an organization account</h2>
+      <p class="sub" id="signupSub">Post needs so donors nearby can help.</p>
+      <div class="field">
+        <label for="suName" id="suNameLabel">Organization name</label>
+        <input type="text" id="suName" placeholder="e.g. Foyer Saint-Jean">
+      </div>
+      <div class="field" id="suCityField">
+        <label for="suCity">City</label>
+        <select id="suCity">
+          <option>Brussels</option><option>Waterloo</option><option>Leuven</option>
+          <option>Antwerp</option><option>Ghent</option><option>Liège</option>
+        </select>
+      </div>
+      <div class="field">
+        <label for="suEmail">Email</label>
+        <input type="email" id="suEmail" placeholder="you@organization.be">
+      </div>
+      <div class="field">
+        <label for="suPassword">Password</label>
+        <input type="password" id="suPassword" placeholder="Choose a password (min. 6 characters)">
+        <div class="field-error" id="signupError">Fill in every field before continuing.</div>
+      </div>
+      <button class="btn btn-primary btn-full" onclick="handleSignup()">Create account</button>
+      <div class="switch-link">Already have an account? <a onclick="setAuthMode('signin')">Sign in</a></div>
+    </div>
+  </div>
+</div>
+
+<!-- ORG DASHBOARD -->
+<div class="view" id="view-dashboard">
+  <div class="dash-header">
+    <div class="dash-org">
+      <div class="avatar" id="dashAvatar">FS</div>
+      <div>
+        <h2 id="dashOrgName" style="font-size:19px;">—</h2>
+        <div class="verified"><span>✓</span> Pilot organization</div>
+      </div>
+    </div>
+    <button class="btn btn-primary" onclick="openModal()">+ Post a new need</button>
+  </div>
+  <div class="pending-banner" id="pendingBanner">
+    <b>Your organization is pending approval.</b> Your needs are saved but stay hidden from the public browse until a Nodig admin approves your account. You can prepare your needs in the meantime.
+  </div>
+  <div class="my-needs-list" id="myNeedsList"></div>
+</div>
+
+<!-- DONOR DASHBOARD -->
+<div class="view" id="view-donor-dashboard">
+  <div class="dash-header">
+    <div class="dash-org">
+      <div class="avatar" id="donorAvatar">D</div>
+      <div>
+        <h2 id="donorName" style="font-size:19px;">—</h2>
+        <div class="verified" style="color:var(--ink-soft);">Donor account</div>
+      </div>
+    </div>
+    <button class="btn" onclick="showView('browse')">Browse more needs</button>
+  </div>
+  <h3 style="font-size:15px; color:var(--ink-soft); font-weight:600; margin-bottom:4px;">Your claimed items</h3>
+  <div class="claims-list" id="claimsList"></div>
+</div>
+
+<!-- MODAL: post/edit need -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <h3 id="modalTitle">Post a need</h3>
+    <div class="field">
+      <label for="mTitle">What's needed</label>
+      <input type="text" id="mTitle" placeholder="e.g. Warm blankets">
+    </div>
+    <div class="field">
+      <label for="mType">Type</label>
+      <select id="mType"><option value="item">Item</option><option value="volunteer">Volunteering</option></select>
+    </div>
+    <div class="field">
+      <label for="mUrgency">Urgency</label>
+      <select id="mUrgency"><option value="Critical">Critical</option><option value="High">High</option><option value="Adequate">Adequate</option></select>
+    </div>
+    <div class="field">
+      <label for="mDesc">Details</label>
+      <textarea id="mDesc" placeholder="e.g. 20 blankets needed before the cold snap this weekend"></textarea>
+    </div>
+    <div class="modal-actions">
+      <button class="btn" style="flex:1" onclick="closeModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="saveNeed()">Save</button>
+    </div>
+  </div>
+</div>
+
+<!-- MODAL: claim confirmation -->
+<div class="modal-overlay" id="claimModalOverlay">
+  <div class="modal">
+    <h3>Claim this need?</h3>
+    <p style="font-size:14px; color:var(--ink-soft); margin-bottom:4px;" id="claimNeedTitle"></p>
+    <p style="font-size:13.5px; color:var(--ink-soft);">Claiming lets the organization know you're bringing this — and hides it from other donors so nothing gets duplicated. You're expected to follow through or release the claim if plans change.</p>
+    <div class="modal-actions">
+      <button class="btn" style="flex:1" onclick="closeClaimModal()">Cancel</button>
+      <button class="btn btn-primary" style="flex:1" onclick="confirmClaim()">Confirm claim</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast"></div>
+<footer>Nodig — a working pilot. Not affiliated with any real organization named here. · <a href="/admin.html">Admin</a></footer>
+
+<script src="/app.js"></script>
+
+</body>
+</html>
