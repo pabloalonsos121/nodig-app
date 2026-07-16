@@ -88,17 +88,58 @@ dashboard). In production you **must** set `JWT_SECRET` and should change
 ## Deployment
 
 The app is a single long-running Node process that needs a small persistent
-disk for the SQLite file — this suits **Render**, **Railway**, or **Fly.io**
-free/hobby tiers well. Serverless platforms (Vercel/Netlify functions) don't
+disk for the SQLite file. Serverless platforms (Vercel/Netlify functions) don't
 keep a writable disk between invocations, so they'd need a hosted Postgres
 instead; the query layer is small and isolated in `server/` if you later want
 to swap SQLite for Postgres.
 
-Deployment checklist:
+A `Dockerfile` and `fly.toml` are included for **Fly.io**, which supports a
+small persistent volume that keeps the SQLite data across restarts.
 
-1. Set `NODE_ENV=production`, a long random `JWT_SECRET`, and a strong `ADMIN_PASSWORD`.
-2. Point `DATABASE_PATH` at the mounted persistent disk (e.g. `/var/data/nodig.db`).
-3. Start command: `npm start`.
+> **Heads up (per the handoff's "flag anything needing a paid tier"):** Fly.io
+> now requires a payment method on file even for tiny apps. Actual usage for
+> this app (one shared-cpu-1x machine that scales to zero + a 1 GB volume) is
+> minimal, but it is no longer strictly card-free. If you want zero-card, a
+> Render free web service also works, but its disk is ephemeral — the SQLite
+> DB resets on each redeploy/restart, which is fine for a throwaway demo but
+> not for keeping pilot data.
+
+### Deploy to Fly.io
+
+From the repo root (the `Dockerfile` and `fly.toml` are already here):
+
+```bash
+# 1. Install flyctl and sign in (creates the account if you don't have one)
+curl -L https://fly.io/install.sh | sh
+fly auth login          # or: fly auth signup
+
+# 2. Create the app (accept the existing Dockerfile; keep the region as cdg/Paris).
+#    Fly may pick a unique name — let it write that name back into fly.toml.
+fly launch --no-deploy --copy-config
+
+# 3. Create the persistent volume for the SQLite file (same region as the app)
+fly volumes create nodig_data --size 1 --region cdg
+
+# 4. Set secrets (do NOT commit these)
+fly secrets set JWT_SECRET="$(node -e "console.log(require('crypto').randomBytes(48).toString('hex'))")"
+fly secrets set ADMIN_PASSWORD="choose-a-strong-admin-password"
+
+# 5. Deploy and open
+fly deploy
+fly open                # prints and opens your public https URL
+```
+
+`NODE_ENV=production`, `PORT`, and `DATABASE_PATH=/data/nodig.db` are already
+set in `fly.toml`'s `[env]`, and the volume mounts at `/data`, so the database
+persists across deploys. On first boot it seeds the demo orgs/needs; approve new
+orgs via `https://<your-app>.fly.dev/admin.html` (password = the `ADMIN_PASSWORD`
+secret you set).
+
+### Deploy anywhere else
+
+Any host that runs a Node process with a writable disk works. Set
+`NODE_ENV=production`, a long random `JWT_SECRET`, and a strong `ADMIN_PASSWORD`;
+point `DATABASE_PATH` at a persistent path; start with `npm start`.
 
 ## Notes / things to confirm with the team
 
